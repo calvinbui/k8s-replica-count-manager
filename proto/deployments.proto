@@ -1,0 +1,46 @@
+// protoc --go_out=./gen --go_opt=paths=source_relative --go-grpc_out=./gen --go-grpc_opt=paths=source_relative deployments.proto
+// I would've liked to cast the types to a struct we already have in our project
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/calvinbui/teleport-sre-challenge/services/proto";
+
+message ListDeploymentsRequest {
+  string Namespace = 1;
+}
+
+message DeploymentsReplicaConfig {
+  string Name = 1;
+  string Namespace = 2;
+  int32 Replicas = 3;
+}
+
+message DeploymentsReplicaConfigs {
+  repeated DeploymentsReplicaConfig deploymentsReplicaConfig = 1;
+}
+
+message GetDeploymentRequest {
+  string Name = 1;
+  string Namespace = 2;
+}
+
+message GetDeploymentResponse {
+  string Name = 1;
+  string Namespace = 2;
+  int32 CurrentReplicas = 3;
+  int32 DesiredReplicas = 4;
+}
+
+message SetDeploymentResponse {
+  string Name = 1;
+  string Namespace = 2;
+  int32 OldReplicas = 3;
+  int32 NewReplicas = 4;
+}
+
+service DeploymentsService {
+  rpc ListDeployments (ListDeploymentsRequest) returns (DeploymentsReplicaConfigs) {}
+  rpc GetDeployment (GetDeploymentRequest) returns (GetDeploymentResponse) {}
+  rpc SetDeployment (DeploymentsReplicaConfig) returns (SetDeploymentResponse) {}
+}

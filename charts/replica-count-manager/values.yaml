@@ -1,0 +1,125 @@
+# -- Number of replicas to deploy
+replicaCount: 1
+
+image:
+  # -- Image repository
+  repository: replica-count-manager
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image tag
+  tag: 0.1.0
+
+# -- Specify registry secret names as an array
+imagePullSecrets: []
+# -- String to partially override common.names.fullname template (will maintain the release name)
+nameOverride: ""
+# -- String to fully override common.names.fullname template
+fullnameOverride: ""
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use.
+  # -- If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Annotations for pods
+podAnnotations: {}
+
+podSecurityContext:
+  # -- Group ID for the filesystem used by pods
+  fsGroup: 10003
+
+securityContext:
+  # -- Switch privilegeEscalation possibility on or off for containers
+  allowPrivilegeEscalation: false
+  # -- Kernel capabilities available to the container
+  capabilities:
+    drop:
+      - ALL
+  # -- mount / (root) as a readonly filesystem on containers
+  readOnlyRootFilesystem: true
+  # -- Force the containers to run as a non root user
+  runAsNonRoot: true
+  # -- User ID for the service user running the containers
+  runAsUser: 10003
+  # -- Enable privileged mode
+  privileged: false
+
+rbac:
+  # -- Create a ClusterRole and ClusterRoleBinding for the Service Account
+  create: true
+
+certificates:
+  # -- Create a secret containing certificates
+  create: true
+  # -- Existing secret containing your own certificates
+  existingSecret: ""
+
+service:
+  # -- Kubernetes service type
+  type: ClusterIP
+  http:
+    # -- HTTP port
+    port: 8081
+  grpc:
+    # -- gRPC port
+    port: 8080
+
+persistence:
+  # -- Enable data persistence using PVC
+  enabled: true
+  # -- Name of an existing PVC to use
+  existingClaim: ""
+  # -- PVC Storage Request for data volume
+  size: 128Mi
+  # -- Type of persistent volume claim
+  # storageClassName: ""
+  # -- Persistence access modes
+  accessModes:
+    - ReadWriteOnce
+  # -- PersistentVolumeClaim annotations
+  annotations: {}
+
+# -- Extra volume mounts to add to the container
+extraVolumeMounts: []
+# -- Extra volumes to add to the container
+extraVolumes: []
+# -- Extra environment variables for the container
+extraEnv: {}
+
+deployment:
+  # -- Annotations for deployment
+  annotation: {}
+
+pdb:
+  # -- Enable/disable a Pod Disruption Budget creation
+  create: false
+  # -- Minimum number/percentage of pods that should remain scheduled
+  minAvailable: 1
+  # -- Maximum number/percentage of pods that may be made unavailable
+  maxUnavailable: ""
+
+# -- The resources limits and requests for the pod
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# -- Node labels for pod assignment
+nodeSelector: {}
+
+# -- Tolerations for pod assignment
+tolerations: []
+
+# -- Affinity for pod assignment
+affinity: {}

@@ -1,0 +1,107 @@
+---
+
+name: static-analysis
+
+on:
+  workflow_call:
+  push:
+    # primary branch build reuses this
+    branches-ignore:
+      - master
+
+jobs:
+  # security
+  nancy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      # use go version number from go.mod
+      - name: 🫶 Get Go version
+        run: echo go_version="$(cat go.mod | grep -E '^go ' | grep -o -P '(?<=go ).*')" >> $GITHUB_ENV
+
+      - name: 🥽 Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ env.go_version }}"
+          cache: true
+
+      # required for nancy
+      - name: ✍🏽 Write go list
+        run: go list -json -m all > go.list
+
+      - name: 🕵️‍♂️ Nancy
+        uses: sonatype-nexus-community/nancy-github-action@main
+        with:
+          nancyVersion: "v1.0.37"
+
+  # Dockerfile linting
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐋 Hadolint
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: Dockerfile
+
+  # an all-in-one golang linter
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      # use go version number from go.mod
+      - name: 🫶 Get Go version
+        run: echo go_version="$(cat go.mod | grep -E '^go ' | grep -o -P '(?<=go ).*')" >> $GITHUB_ENV
+
+      - name: 🥽 Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ env.go_version }}"
+          cache: true
+
+      - name: 📢 golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
+          skip-go-installation: true
+          args: --verbose --allow-parallel-runners --sort-results --print-resources-usage --timeout 5m
+
+  # there's only 1 script (certificates/gen.sh)
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐚 Shellcheck
+        run: find . -type f \( -name "*.sh" -o -name "*.bash" -o -name "*.ksh" -o -name "*.zsh" \) | xargs --no-run-if-empty shellcheck -x
+
+  # linting helm charts
+  chart-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 📐 Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.9.1
+
+      # python required for linting (yamllint and yamale)
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: 🏗️ Set up chart-testing
+        uses: helm/chart-testing-action@v2.2.1
+
+      - name: 👷‍♀️ Lint and validate charts
+        run: ct lint --all

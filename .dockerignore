@@ -1,0 +1,10 @@
+Dockerfile
+.git
+.github
+*.md
+out/
+.dockerignore
+.gitignore
+makefile
+.hadolint.yaml
+charts/

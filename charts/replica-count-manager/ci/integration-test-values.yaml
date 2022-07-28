@@ -1,0 +1,6 @@
+---
+
+image:
+  repository: replica-count-manager
+  pullPolicy: IfNotPresent
+  tag: dev

@@ -1,0 +1,26 @@
+{{- if .Values.rbac.create -}}
+apiVersion: {{ include "common.capabilities.rbac.apiVersion" . }}
+kind: ClusterRole
+metadata:
+  name: {{ include "replica-count-manager.fullname" . }}-clusterrole
+  labels:
+    {{- include "replica-count-manager.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+
+  - apiGroups:
+      - apps
+    resources:
+      - deployments/scale
+    verbs:
+      - get
+      - update
+{{- end }}

@@ -1,0 +1,61 @@
+---
+
+name: tests
+
+on:
+  workflow_call:
+  push:
+    # primary branch build reuses this
+    branches-ignore:
+      - master
+
+jobs:
+  go-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      # use go version number from go.mod
+      - name: 🫶 Get Go version
+        run: echo go_version="$(cat go.mod | grep -E '^go ' | grep -o -P '(?<=go ).*')" >> $GITHUB_ENV
+
+      - name: 🥽 Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ env.go_version }}"
+          cache: true
+
+      - name: 🧱 go fmt
+        run: test -z $(go fmt ./...)
+
+      - name: ⛑️ go test
+        run: go test -v ./...
+
+      - name: 🦺 go build
+        run: go build -v ./...
+
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout
+        uses: actions/checkout@v3
+
+      - name: 📐 Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.8.1
+
+      - name: 🏗️ Set up chart-testing
+        uses: helm/chart-testing-action@v2.2.1
+
+      # ideally would deploy and run against actual environment (EKS)
+      # recommended by minikube: https://minikube.sigs.k8s.io/docs/tutorials/setup_minikube_in_github_actions/
+      - name: 💽 Start minikube
+        uses: medyagh/setup-minikube@master
+
+      # reuse the makefile target
+      - name: 🔧 Build, push and test Docker image on minikube
+        run: |
+          export SHELL=/bin/bash
+          make test-k8s

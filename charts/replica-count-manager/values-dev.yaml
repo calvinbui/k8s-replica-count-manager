@@ -1,0 +1,12 @@
+image:
+  repository: replica-count-manager
+  pullPolicy: IfNotPresent
+  tag: dev
+
+extraEnv:
+  - name: LOG_LEVEL
+    value: Debug
+
+persistence:
+  accessModes:
+    - ReadWriteMany

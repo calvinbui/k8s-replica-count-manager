@@ -1,0 +1,18 @@
+---
+apiVersion: v2
+name: replica-count-manager
+description: Provide an API alongside the native Kubernetes deployment controller to manage the pod replica count of deployment resources
+keywords:
+  - kubernetes
+  - teleport
+  - technical-challenge
+icon: https://avatars.githubusercontent.com/u/3604363?v=4
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: calvinbui
+    email: 3604363+calvinbui@users.noreply.github.com
+home: https://github.com/calvinbui/teleport-sre-challenge/
+sources:
+  - https://github.com/calvinbui/teleport-sre-challenge/
